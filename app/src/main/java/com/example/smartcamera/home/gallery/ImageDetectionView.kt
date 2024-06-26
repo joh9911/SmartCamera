@@ -37,9 +37,9 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import com.example.smartcamera.composables.ObjectDetectionOverlay
+import com.example.smartcamera.composables.overlay.ObjectDetectionOverlay
 import com.example.smartcamera.objectdetector.ObjectDetectorHelper
-import com.google.mediapipe.examples.objectdetection.utils.getFittedBoxSize
+import com.example.smartcamera.utils.getFittedBoxSize
 import com.google.mediapipe.tasks.vision.core.RunningMode
 import com.google.mediapipe.tasks.vision.objectdetector.ObjectDetectionResult
 import java.util.concurrent.Executors

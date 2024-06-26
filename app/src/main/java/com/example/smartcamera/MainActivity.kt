@@ -15,76 +15,96 @@
  */
 package com.example.smartcamera
 
+import android.annotation.SuppressLint
+import android.content.res.Resources
+import android.os.Build
 import android.os.Bundle
-import android.util.Log
+import android.util.TypedValue
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
+import androidx.activity.viewModels
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.WindowInsetsControllerCompat
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.smartcamera.home.HomeScreen
 import com.example.smartcamera.objectdetector.ObjectDetectorHelper
-import com.google.mediapipe.examples.objectdetection.options.OptionsScreen
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
 import com.example.smartcamera.ui.theme.SmartCameraTheme
-import com.google.mediapipe.examples.objectdetection.home.camera.CameraState.CAMERA_BACK
-import com.google.mediapipe.examples.objectdetection.home.camera.CameraState.CAMERA_FRONT
+import com.example.smartcamera.ui.viewmodel.MainViewModel
+import com.example.smartcamera.utils.BalanceSensorManager
+import com.google.accompanist.systemuicontroller.rememberSystemUiController
 
 //Entry point of our example app
 class MainActivity : ComponentActivity() {
+    private lateinit var viewModel: MainViewModel
+    private lateinit var sensorManager: BalanceSensorManager
+
+    @RequiresApi(Build.VERSION_CODES.R)
+    @SuppressLint("WrongConstant")
     override fun onCreate(savedInstanceState: Bundle?) {
+        setTheme(R.style.Theme_SmartCamera) // 스플래시 스크린 이후 앱 테마 설정
+
         super.onCreate(savedInstanceState)
+        viewModel = viewModels<MainViewModel>().value
+        sensorManager = BalanceSensorManager(this) { pitch, roll ->
+            viewModel.updateSensorValue(pitch, roll)
+        }
+
+        enableEdgeToEdge()
+
+        WindowInsetsControllerCompat(window, window.decorView).apply {
+            hide(WindowInsetsCompat.Type.statusBars())
+            systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+        }
+
+
         setContent {
-            SmartCameraApp()
+            SmartCameraApp(viewModel)
         }
     }
+
 }
 
 // Root component of our app components tree
 @Composable
-fun SmartCameraApp() {
-    // Here we're first defining the object detector parameters states
+fun SmartCameraApp(
+    viewModel: MainViewModel,
+) {
+    val systemUiController = rememberSystemUiController()
 
-    // We're defining them at the top of the components tree so that they
-    // are accessible to all the app components, and any change of these
-    // states will be reflected across the entire app, ensuring consistency
+    // 상태바를 투명하게 설정
+    systemUiController.setStatusBarColor(
+        color = Color.Transparent, // 완전 투명
+        darkIcons = true // 상태바 아이콘을 어둡게 설정
+    )
 
-    // We're using "rememberSaveable" rather than "remember" so that the state
-    // is preserved when the app change its orientation.
-
-    // Since using a data class with "rememberSaveable" requires additional
-    // configuration, we'll just define each option state individually as
-    // "rememberSaveable" works with primitive values out of the box
-
-    var threshold by rememberSaveable {
+    val threshold by rememberSaveable {
         mutableStateOf(0.4f)
     }
-    var maxResults by rememberSaveable {
+    val maxResults by rememberSaveable {
         mutableStateOf(5)
     }
-    var delegate by rememberSaveable {
+    val delegate by rememberSaveable {
         mutableStateOf(ObjectDetectorHelper.DELEGATE_CPU)
     }
-    var mlModel by rememberSaveable {
+    val mlModel by rememberSaveable {
         mutableStateOf(ObjectDetectorHelper.MODEL_EFFICIENTDETV0)
     }
 
-    var cameraDirection by rememberSaveable {
-        mutableStateOf(CAMERA_FRONT)
-    }
-
-    var isGridVisible by rememberSaveable {
-        mutableStateOf(false)
-    }
 
     SmartCameraTheme(darkTheme = false) {
+
         Surface(modifier = Modifier.fillMaxSize()) {
             // Here we handle navigation between Home screen and Options screen
             // Nothing too fancy, we only have two screens.
@@ -101,6 +121,7 @@ fun SmartCameraApp() {
                 // to navigate to the other one
                 composable(route = "Home") {
                     HomeScreen(
+                        viewModel = viewModel,
                         onOptionsButtonClick = {
                             navController.navigate("Options")
                         },
@@ -108,25 +129,18 @@ fun SmartCameraApp() {
                         maxResults = maxResults,
                         delegate = delegate,
                         mlModel = mlModel,
-                        isGridVisible = isGridVisible,
-                        cameraDirection = cameraDirection,
-                        changeCameraDirection = {cameraDirection = if (cameraDirection == CAMERA_FRONT) CAMERA_BACK
-                        else CAMERA_FRONT
-                            Log.d("CameraDirection", "Camera direction changed to $cameraDirection")
-                        }
                     )
                 }
                 composable(route = "Options") {
-                    OptionsScreen(
-                        onBackButtonClick = {
-                            navController.popBackStack()
-                        },
-                        threshold = threshold, setThreshold = { threshold = it },
-                        maxResults = maxResults, setMaxResults = { maxResults = it },
-                        delegate = delegate, setDelegate = { delegate = it },
-                        mlModel = mlModel, setMlModel = { mlModel = it },
-                        isGridVisible = isGridVisible, setIsGridVisible = { isGridVisible = it },
-                    )
+//                    OptionsScreen(
+//                        onBackButtonClick = {
+//                            navController.popBackStack()
+//                        },
+//                        threshold = threshold, setThreshold = { threshold = it },
+//                        maxResults = maxResults, setMaxResults = { maxResults = it },
+//                        delegate = delegate, setDelegate = { delegate = it },
+//                        mlModel = mlModel, setMlModel = { mlModel = it },
+//                    )
                 }
             }
         }

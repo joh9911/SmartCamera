@@ -62,6 +62,7 @@ dependencies {
     implementation("androidx.compose.ui:ui-tooling-preview")
     implementation("androidx.compose.material3:material3")
     implementation("androidx.compose.material:material-icons-extended:1.6.7")
+    implementation("com.google.mlkit:object-detection-custom:17.0.1")
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
@@ -91,8 +92,12 @@ dependencies {
     implementation ("androidx.navigation:navigation-ui-ktx:$nav_version")
     implementation ("androidx.navigation:navigation-compose:$nav_version")
 
+    implementation ("androidx.constraintlayout:constraintlayout-compose:1.0.1")
+
+
     val accompanistPermissionsVersion = "0.23.1"
     implementation ("com.google.accompanist:accompanist-permissions:$accompanistPermissionsVersion")
+    implementation ("com.google.accompanist:accompanist-systemuicontroller:0.28.0")
 
 
     implementation ("com.google.mediapipe:tasks-vision:latest.release")
@@ -100,4 +105,6 @@ dependencies {
 
     implementation ("org.tensorflow:tensorflow-lite-task-vision-play-services:0.4.2")
     implementation ("com.google.android.gms:play-services-tflite-gpu:16.2.0")
+    implementation ("com.google.mlkit:object-detection:17.0.1")
+
 }

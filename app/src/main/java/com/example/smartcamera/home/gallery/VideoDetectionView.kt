@@ -34,7 +34,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.platform.LocalContext
 import com.example.smartcamera.objectdetector.ObjectDetectorHelper
-import com.google.mediapipe.examples.objectdetection.utils.getFittedBoxSize
+import com.example.smartcamera.utils.getFittedBoxSize
 
 import com.google.mediapipe.tasks.vision.core.RunningMode
 import com.google.mediapipe.tasks.vision.objectdetector.ObjectDetectionResult

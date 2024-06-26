@@ -255,6 +255,7 @@ class ObjectDetectorHelper(
                 imageProxy.height,
                 Bitmap.Config.ARGB_8888
             )
+
         imageProxy.use { bitmapBuffer.copyPixelsFromBuffer(imageProxy.planes[0].buffer) }
         imageProxy.close()
 

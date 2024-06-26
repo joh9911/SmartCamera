@@ -2,4 +2,12 @@
 <resources>
 
     <style name="Theme.SmartCamera" parent="android:Theme.Material.Light.NoActionBar" />
+
+    <style name="SplashTheme" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="android:windowBackground">@drawable/splash_screen_background</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowFullscreen">true</item>
+    </style>
+
+
 </resources>

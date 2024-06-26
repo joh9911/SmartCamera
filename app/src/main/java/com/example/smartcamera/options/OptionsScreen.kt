@@ -228,8 +228,8 @@ fun OptionsScreen(
             )
             Text(
                 text = when (delegate) {
-                    ObjectDetectorHelper.DELEGATE_CPU -> "CPU";
-                    else -> "GPU";
+                    ObjectDetectorHelper.DELEGATE_CPU -> "CPU"
+                    else -> "GPU"
                 },
             )
             IconButton(
@@ -278,8 +278,8 @@ fun OptionsScreen(
             )
             Text(
                 text = when (mlModel) {
-                    ObjectDetectorHelper.MODEL_EFFICIENTDETV0 -> "EfficientDet Lite0";
-                    else -> "EfficientDet Lite2";
+                    ObjectDetectorHelper.MODEL_EFFICIENTDETV0 -> "EfficientDet Lite0"
+                    else -> "EfficientDet Lite2"
                 },
             )
             IconButton(
