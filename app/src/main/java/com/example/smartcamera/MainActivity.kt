@@ -25,6 +25,8 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.annotation.RequiresApi
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
@@ -39,6 +41,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.smartcamera.home.HomeScreen
+import com.example.smartcamera.home.ImagePreviewScreen
 import com.example.smartcamera.objectdetector.ObjectDetectorHelper
 import com.example.smartcamera.ui.theme.SmartCameraTheme
 import com.example.smartcamera.ui.viewmodel.MainViewModel
@@ -119,7 +122,10 @@ fun SmartCameraApp(
                 // Here we associate a route name with each screen
                 // We also provide a callback function to each screen
                 // to navigate to the other one
-                composable(route = "Home") {
+                composable(route = "Home",
+                    enterTransition = { EnterTransition.None },
+                    exitTransition = { ExitTransition.None }) {
+
                     HomeScreen(
                         viewModel = viewModel,
                         onOptionsButtonClick = {
@@ -129,7 +135,15 @@ fun SmartCameraApp(
                         maxResults = maxResults,
                         delegate = delegate,
                         mlModel = mlModel,
+                        onCaptureClick = {navController.navigate("Preview")}
                     )
+                }
+                composable(route = "Preview",
+                    enterTransition = { EnterTransition.None },
+                    exitTransition = { ExitTransition.None }){
+                    ImagePreviewScreen(viewModel = viewModel, onBackPressed = {
+                        navController.popBackStack()
+                    })
                 }
                 composable(route = "Options") {
 //                    OptionsScreen(

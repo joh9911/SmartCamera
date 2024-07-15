@@ -1,6 +1,7 @@
 package com.example.smartcamera.ui.viewmodel
 
 import CameraSettingsManager
+import android.net.Uri
 import android.util.Log
 import androidx.annotation.OptIn
 import androidx.camera.camera2.interop.Camera2CameraControl
@@ -10,6 +11,8 @@ import androidx.camera.core.CameraSelector
 import androidx.compose.ui.geometry.Offset
 import androidx.lifecycle.ViewModel
 import com.example.smartcamera.objectdetector.ObjectGraphic
+import com.example.smartcamera.objectdetector.PoseLandmarkerHelper
+import com.example.smartcamera.utils.BodyRatioCalculator
 import com.example.smartcamera.utils.CameraAspectRatio
 import com.example.smartcamera.utils.CameraFrameConfig
 import com.example.smartcamera.utils.GuideMessage
@@ -126,8 +129,8 @@ class MainViewModel : ViewModel() {
 
     var guideState = GuideState.Idle
 
-    private val _guideMessage = MutableStateFlow("")
-    val guideMessage = _guideMessage.asStateFlow()
+    private val _guideMessage = MutableStateFlow<GuideMessage>(GuideMessage.EMPTY)
+    val guideMessage: StateFlow<GuideMessage> = _guideMessage.asStateFlow()
 
     private val _guideMessageActive = MutableStateFlow(false)
     val guideMessageActive = _guideMessageActive.asStateFlow()
@@ -136,8 +139,8 @@ class MainViewModel : ViewModel() {
         _guideMessageActive.value = boolean
     }
 
-    fun setGuideMessage(msg: String){
-        _guideMessage.value = msg
+    fun setGuideMessage(message: GuideMessage) {
+        _guideMessage.value = message
     }
 
 
@@ -243,12 +246,11 @@ class MainViewModel : ViewModel() {
         Log.d(Tag.TAG,"토글 아이디")
         _graphicOverlayState.update { currentState ->
             val updatedTrackedIds = if (currentState.trackedTrackingIds.contains(trackingId)) {
-                Log.d(Tag.TAG,"이미 있어, 그래서 지움")
                 guideState = GuideState.Idle
+
                 setGuideMessageActive(false)
                 currentState.trackedTrackingIds - trackingId
             } else {
-                Log.d(Tag.TAG,"없어,그래서 생성. 노란색이 나와야함")
                 guideState = GuideState.ObjectSelected
                 setGuideMessageActive(true)
                 currentState.trackedTrackingIds + trackingId
@@ -300,12 +302,56 @@ class MainViewModel : ViewModel() {
         _graphicOverlayState.update { currentState ->
             currentState.copy(clickedPoint = point)
         }
+        point?.let { handleObjectClick(it) }
+    }
+
+    fun handleObjectClick(clickedPoint: Offset) {
+        val currentState = _graphicOverlayState.value
+        val clickedObjects = currentState.graphics.filterIsInstance<ObjectGraphic>()
+            .filter { it.handleClick(currentState, clickedPoint) }
+
+        if (clickedObjects.isNotEmpty()) {
+            val smallestObject = clickedObjects.minByOrNull { graphic ->
+                val objRect = graphic.detectedObject.boundingBox
+                objRect.width() * objRect.height()
+            }
+            smallestObject?.let {
+                toggleTrackedTrackingId(it.detectedObject.trackingId!!)
+            }
+        }
+
+        // 클릭 포인트 초기화
+        updateClickedPoint(null)
     }
 
     private val _isGridVisible = MutableStateFlow(false)
 
     val isGridVisible = _isGridVisible.asStateFlow()
 
+
+    private val bodyRatioCalculator = BodyRatioCalculator()
+
+    private val _bodyRatio = MutableStateFlow(0f)
+    val bodyRatio: StateFlow<Float> = _bodyRatio
+
+    private val _isIdealRatio = MutableStateFlow(false)
+    val isIdealRatio: StateFlow<Boolean> = _isIdealRatio
+
+    fun updateBodyMeasurements(shoulderToHip: Float, hipToFoot: Float) {
+        if (shoulderToHip != 0f) {
+            val newRatio = hipToFoot / shoulderToHip
+            val stableRatio = bodyRatioCalculator.updateRatio(newRatio)
+            _bodyRatio.value = stableRatio
+            _isIdealRatio.value = bodyRatioCalculator.isIdealRatio()
+        }
+    }
+
+    private val _capturedImageUri = MutableStateFlow<Uri?>(null)
+    val capturedImageUri: StateFlow<Uri?> = _capturedImageUri
+
+    fun setCapturedImageUri(uri: Uri?) {
+        _capturedImageUri.value = uri
+    }
 
     fun updateCameraDirection() {
         if (lensFacing.value == CameraSelector.LENS_FACING_BACK)
@@ -338,6 +384,15 @@ class MainViewModel : ViewModel() {
             CameraAspectRatio.FULL_SCREEN -> {}
         }
     }
+
+    private val _poseLandmarkResultBundle = MutableStateFlow<PoseLandmarkerHelper.ResultBundle?>(null)
+    val poseLandmarkResultBundle = _poseLandmarkResultBundle.asStateFlow()
+
+    fun updatePoseLandmarkResultBundle(bundle: PoseLandmarkerHelper.ResultBundle?) {
+        _poseLandmarkResultBundle.value = bundle
+    }
+
+
 
 
 }

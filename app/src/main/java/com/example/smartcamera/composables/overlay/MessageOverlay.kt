@@ -23,27 +23,20 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.times
+import com.example.smartcamera.utils.GuideMessage
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @Composable
-fun MessageOverlay(message: String, isVisible: Boolean, onDismiss: () -> Unit) {
-    var displayMessage by remember { mutableStateOf("") }
+fun MessageOverlay(message: GuideMessage, isVisible: Boolean, onDismiss: () -> Unit) {
+    var displayMessage by remember { mutableStateOf(GuideMessage.EMPTY) }
     val coroutineScope = rememberCoroutineScope()
     val messageProgress = remember { Animatable(0f) }
     val boxWidth = messageProgress.value * 300.dp // Assume max width of 300dp for the message box
 
     LaunchedEffect(message) {
 
-        messageProgress.snapTo(0f)
-        displayMessage = ""
-        messageProgress.animateTo(1f, animationSpec = tween(durationMillis = 300))
-        coroutineScope.launch {
-            message.forEachIndexed { index, char ->
-                delay(30)
-                displayMessage += char
-            }
-        }
+        displayMessage = message
 
     }
 
@@ -52,22 +45,21 @@ fun MessageOverlay(message: String, isVisible: Boolean, onDismiss: () -> Unit) {
         enter = fadeIn(),
         exit = fadeOut()
     ) {
-        if (displayMessage.isNotEmpty()) {
-            Box(
-                modifier = Modifier
-                    .padding(16.dp)
-                    .background(Color.Black.copy(alpha = 0.8f), shape = RoundedCornerShape(8.dp))
-                    .padding(horizontal = 16.dp, vertical = 8.dp)
-                    .clickable {
-                        onDismiss()
-                    }
-            ) {
-                Text(
-                    text = displayMessage,
-                    color = Color.White,
-                    fontSize = 14.sp
-                )
-            }
+        Box(
+            modifier = Modifier
+                .padding(16.dp)
+                .background(Color.Black.copy(alpha = 0.8f), shape = RoundedCornerShape(8.dp))
+                .padding(horizontal = 16.dp, vertical = 8.dp)
+                .clickable {
+                    onDismiss()
+                }
+        ) {
+            Text(
+                text = displayMessage.message,
+                color = Color.White,
+                fontSize = 14.sp
+            )
         }
+
     }
 }

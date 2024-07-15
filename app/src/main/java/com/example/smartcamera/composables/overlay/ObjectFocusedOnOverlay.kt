@@ -21,38 +21,40 @@ import kotlin.math.min
 
 @Composable
 fun ObjectFocusedOnOverlay(viewModel: MainViewModel) {
-    val state by viewModel.graphicOverlayState.collectAsState()
     val cameraMode by viewModel.cameraMode.collectAsState()
+    val state by viewModel.graphicOverlayState.collectAsState()
+
 
 //    val pitch by viewModel.pitch.collectAsState()
 //    val roll by viewModel.roll.collectAsState()
 //
-//    // 이전 값들을 저장할 상태를 추가합니다.
+//    // 이전 값들을 저장할 상태를 추가 합니다.
 //    var previousPitch by remember { mutableStateOf(0f) }
 //    var previousRoll by remember { mutableStateOf(0f) }
 //
-//    // 필터링된 값들을 계산합니다.
+//    // 필터링 된 값들을 계산 합니다.
 //    val filteredPitch = (pitch + previousPitch) / 2
 //    val filteredRoll = (roll + previousRoll) / 2
 //
-//    // 이전 값을 업데이트합니다.
+//    // 이전 값을 업데이트 합니다.
 //    previousPitch = filteredPitch
 //    previousRoll = filteredRoll
 
-    Canvas(modifier = Modifier
-        .fillMaxSize()
-        .pointerInput(Unit) {
-            if (cameraMode == 0){
-                coroutineScope {
-                    launch {
-                        detectTapGestures { offset ->
-                            viewModel.updateClickedPoint(offset)
+    Canvas(
+        modifier = Modifier
+            .fillMaxSize()
+            .pointerInput(Unit) {
+                if (cameraMode == 0) {
+                    coroutineScope {
+                        launch {
+                            detectTapGestures { offset ->
+                                viewModel.updateClickedPoint(offset)
+                            }
                         }
                     }
                 }
-            }
 
-        }) {
+            }) {
         viewModel.updateTransformationIfNeeded(size.width.toInt(), size.height.toInt())
 
         // 초기 그리드 색상
@@ -64,22 +66,22 @@ fun ObjectFocusedOnOverlay(viewModel: MainViewModel) {
         val cellHeight = size.height / numRows
 
         // 초기 상태로 그리드 그리기
-        for (i in 1 until numColumns) {
-            drawLine(
-                start = Offset(x = cellWidth * i, y = 0f),
-                end = Offset(x = cellWidth * i, y = size.height),
-                color = initialGridColor,
-                strokeWidth = 1.dp.toPx()
-            )
-        }
-        for (i in 1 until numRows) {
-            drawLine(
-                start = Offset(x = 0f, y = cellHeight * i),
-                end = Offset(x = size.width, y = cellHeight * i),
-                color = initialGridColor,
-                strokeWidth = 1.dp.toPx()
-            )
-        }
+//        for (i in 1 until numColumns) {
+//            drawLine(
+//                start = Offset(x = cellWidth * i, y = 0f),
+//                end = Offset(x = cellWidth * i, y = size.height),
+//                color = initialGridColor,
+//                strokeWidth = 1.dp.toPx()
+//            )
+//        }
+//        for (i in 1 until numRows) {
+//            drawLine(
+//                start = Offset(x = 0f, y = cellHeight * i),
+//                end = Offset(x = size.width, y = cellHeight * i),
+//                color = initialGridColor,
+//                strokeWidth = 1.dp.toPx()
+//            )
+//        }
 
         // 중앙과 하단의 특정 셀 경계 위치
         val centerCellTopLeft = Offset(cellWidth, cellHeight)
@@ -88,8 +90,6 @@ fun ObjectFocusedOnOverlay(viewModel: MainViewModel) {
         val bottomCellSize = Size(cellWidth, cellHeight)
 
         // 물체 박스가 중앙 또는 하단 셀에 들어가면 해당 셀의 테두리를 노란색으로 변경
-
-
 
         for (graphic in state.graphics) {
             graphic.draw(this, state)
@@ -117,22 +117,22 @@ fun ObjectFocusedOnOverlay(viewModel: MainViewModel) {
 
 
 
-                if (isInCenterCell) {
-                    drawRect(
-                        color = highlightColor,
-                        topLeft = centerCellTopLeft,
-                        size = centerCellSize,
-                        style = Stroke(width = 1.dp.toPx())
-                    )
-                }
-                if (isInBottomCell) {
-                    drawRect(
-                        color = highlightColor,
-                        topLeft = bottomCellTopLeft,
-                        size = bottomCellSize,
-                        style = Stroke(width = 1.dp.toPx())
-                    )
-                }
+//                if (isInCenterCell) {
+//                    drawRect(
+//                        color = highlightColor,
+//                        topLeft = centerCellTopLeft,
+//                        size = centerCellSize,
+//                        style = Stroke(width = 1.dp.toPx())
+//                    )
+//                }
+//                if (isInBottomCell) {
+//                    drawRect(
+//                        color = highlightColor,
+//                        topLeft = bottomCellTopLeft,
+//                        size = bottomCellSize,
+//                        style = Stroke(width = 1.dp.toPx())
+//                    )
+//                }
 
             }
 

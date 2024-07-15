@@ -1,8 +1,13 @@
 package com.example.smartcamera.composables
 
 import androidx.camera.core.CameraSelector
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.spring
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -32,6 +37,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -45,7 +51,11 @@ import com.example.smartcamera.utils.CameraAspectRatio
 fun BottomControlBar(
     viewModel: MainViewModel,
     modifier: Modifier,
+    onCaptureClick: () -> Unit
+
 ) {
+
+    val ratio by viewModel.bodyRatio.collectAsState()
 
     val selectedMode by viewModel.cameraMode.collectAsState()
 
@@ -62,6 +72,12 @@ fun BottomControlBar(
                     .fillMaxWidth()
                     .height(13.dp)
             )
+            Column {
+
+                Text("Body Ratio: ${String.format("%.2f", ratio)}", color = Color.White)
+            }
+
+
 
             CameraModeSelector(viewModel, selectedMode)
 
@@ -98,7 +114,11 @@ fun BottomControlBar(
                 }
 
                 // 사진 찍기 버튼
-                CameraShutterButton({})
+                CameraShutterButton(
+                    onCapture = {
+                        onCaptureClick()
+                    }
+                )
 
                 // 카메라 전환 버튼
                 IconButton(
@@ -130,10 +150,22 @@ fun BottomControlBar(
 }
 
 @Composable
-fun CameraShutterButton(onClick: () -> Unit) {
+fun CameraShutterButton(    onCapture: () -> Unit,
+) {
+    val interactionSource = remember { MutableInteractionSource() }
+    val isPressed by interactionSource.collectIsPressedAsState()
+
+    val scale by animateFloatAsState(
+        targetValue = if (isPressed) 0.7f else 1f,
+        animationSpec = spring(
+            dampingRatio = Spring.DampingRatioMediumBouncy,
+            stiffness = Spring.StiffnessLow
+        )
+    )
     Box(
         modifier = Modifier
             .size(80.dp)
+            .scale(scale)
             .shadow(8.dp, shape = CircleShape)
             .background(color = Color.White, shape = CircleShape)
             .padding(4.dp)
@@ -143,7 +175,11 @@ fun CameraShutterButton(onClick: () -> Unit) {
                 ),
                 shape = CircleShape
             )
-            .clickable(onClick = onClick)
+            .clickable(
+                interactionSource = interactionSource,
+                indication = null, // 리플 효과 제거
+                onClick = onCapture
+            )
     )
 }
 

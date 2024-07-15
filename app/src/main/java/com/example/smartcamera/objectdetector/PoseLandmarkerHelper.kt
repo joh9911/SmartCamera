@@ -173,9 +173,9 @@ class PoseLandmarkerHelper(
 
         val buffer = imageProxy.planes[0].buffer
         buffer.rewind()
-
-        imageProxy.use { bitmapBuffer.copyPixelsFromBuffer(buffer) }
-        imageProxy.close()
+        bitmapBuffer.copyPixelsFromBuffer(buffer)
+//        imageProxy.use {  }
+//        imageProxy.close()
 
         val matrix = Matrix().apply {
             // Rotate the frame received from the camera to be in the same direction as it'll be shown

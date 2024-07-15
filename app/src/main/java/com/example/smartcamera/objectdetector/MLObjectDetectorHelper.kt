@@ -40,24 +40,33 @@ class MLObjectDetectorHelper(
     }
 
     @OptIn(ExperimentalGetImage::class)
-    fun detectAsync(image: ImageProxy){
-        val realImage = image.image
-        if (realImage != null){
-            val i = InputImage.fromMediaImage(realImage, image.imageInfo.rotationDegrees)
-            objectDetector?.process(i)?.addOnSuccessListener { detectedObjects ->
-                objectDetectorListener?.onResults(detectedObjects, image.width, image.height)
+    fun detectAsync(image: ImageProxy) {
+        try {
+            // Convert ImageProxy to Bitmap
+            val bitmap = image.toBitmap()
 
-            }
-                ?.addOnFailureListener {
-                    Log.d("mlObjectDetectorHelper","${it}")
+            // Rotate the bitmap if needed
+            val rotatedBitmap = bitmap.rotate(image.imageInfo.rotationDegrees.toFloat())
 
+            // Convert Bitmap to InputImage
+            val inputImage = InputImage.fromBitmap(rotatedBitmap, 0)
+
+            objectDetector?.process(inputImage)
+                ?.addOnSuccessListener { detectedObjects ->
+                    objectDetectorListener?.onResults(detectedObjects, rotatedBitmap.width, rotatedBitmap.height)
+                }
+                ?.addOnFailureListener { e ->
+                    Log.d("mlObjectDetectorHelper", "Detection failed: ${e.message}")
                 }
                 ?.addOnCompleteListener {
-                    image.close()
+                    // Recycle the rotated bitmap to free up memory
+                    rotatedBitmap.recycle()
                 }
+        } catch (e: Exception) {
+            Log.e("mlObjectDetectorHelper", "Error processing image: ${e.message}")
+        } finally {
+//            image.close()
         }
-
-
     }
 
     // Extension function to convert ImageProxy to Bitmap

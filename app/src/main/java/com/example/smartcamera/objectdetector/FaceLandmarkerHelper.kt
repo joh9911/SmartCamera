@@ -189,7 +189,7 @@ class FaceLandmarkerHelper(
         val mpImage = BitmapImageBuilder(rotatedBitmap).build()
 
         detectAsync(mpImage, frameTime)
-        imageProxy.close()
+//        imageProxy.close()
     }
 
     fun ImageProxy.toBitmap(): Bitmap? {

@@ -24,7 +24,7 @@ import java.nio.ByteBuffer
 
 class ImageSegmenterHelper(
     var currentDelegate: Int = DELEGATE_CPU,
-    var runningMode: RunningMode = RunningMode.IMAGE,
+    var runningMode: RunningMode = RunningMode.LIVE_STREAM,
     var currentModel: Int = MODEL_SELFIE_SEGMENTER,
     val context: Context,
     var imageSegmenterListener: SegmenterListener? = null
@@ -131,28 +131,7 @@ class ImageSegmenterHelper(
         }
     }
 
-    fun ImageProxy.toBitmap(): Bitmap? {
-        val yBuffer = planes[0].buffer // Y
-        val uBuffer = planes[1].buffer // U
-        val vBuffer = planes[2].buffer // V
 
-        val ySize = yBuffer.remaining()
-        val uSize = uBuffer.remaining()
-        val vSize = vBuffer.remaining()
-
-        val nv21 = ByteArray(ySize + uSize + vSize)
-
-        // U와 V를 YUV 420 format에서 NV21 format으로 변환
-        yBuffer.get(nv21, 0, ySize)
-        vBuffer.get(nv21, ySize, vSize / 2)
-        uBuffer.get(nv21, ySize + vSize / 2, uSize / 2)
-
-        val yuvImage = YuvImage(nv21, ImageFormat.NV21, width, height, null)
-        val out = ByteArrayOutputStream()
-        yuvImage.compressToJpeg(android.graphics.Rect(0, 0, width, height), 100, out)
-        val imageBytes = out.toByteArray()
-        return BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
-    }
 
     // Runs image segmentation on live streaming cameras frame-by-frame and
     // returns the results asynchronously to the caller.

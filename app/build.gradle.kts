@@ -107,4 +107,7 @@ dependencies {
     implementation ("com.google.android.gms:play-services-tflite-gpu:16.2.0")
     implementation ("com.google.mlkit:object-detection:17.0.1")
 
+    implementation ("io.coil-kt:coil-compose:2.4.0")  // 또는 더 최신 버전
+
+
 }
