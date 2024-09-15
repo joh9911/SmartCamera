@@ -65,11 +65,11 @@ SmartCamera는 컴퓨터 비전 기술과 AI를 활용하여 실시간으로 사
 <table>
   <tr>
     <td align="center">
-      <img src="path_to_analysis_image_1.jpg" alt="분석 결과 1" width="400"><br>
+      <img src="smart_camera_difference1.jpeg" alt="분석 결과 1" width="400"><br>
       <em>인물 구도 최적화 및 포즈 가이드</em>
     </td>
     <td align="center">
-      <img src="path_to_analysis_image_2.jpg" alt="분석 결과 2" width="400"><br>
+      <img src="smart_camera_difference2.jpeg" alt="분석 결과 2" width="400"><br>
       <em>객체 추적 및 초점 조정 예시</em>
     </td>
   </tr>
